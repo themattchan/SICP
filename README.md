@@ -11,25 +11,25 @@ Psets from: http://mitpress.mit.edu/sicp/psets/index.html
 
 Completed:
 
-[ ] Chapter 1
-[ ] Chapter 2 (Up to 29, skipped 14-16)
-[ ] Chapter 3
-[ ] Chapter 4
-[ ] Chapter 5
+- [ ] Chapter 1
+- [ ] Chapter 2 (Up to 29, skipped 14-16)
+- [ ] Chapter 3
+- [ ] Chapter 4
+- [ ] Chapter 5
 
-[ ] Pset 0
-[ ] Pset 1
-[ ] Pset 2
-[ ] Pset 3
-[ ] Pset 4
-[ ] Pset 5
-[ ] Pset 6
-[ ] Pset 7
-[ ] Pset 8
-[ ] Pset 9
-[ ] Pset 10
-[ ] Pset 11
-[ ] Pset 12
-[ ] Pset 13
-[ ] Pset 14
-[ ] Pset 15
+- [ ] Pset 0
+- [ ] Pset 1
+- [ ] Pset 2
+- [ ] Pset 3
+- [ ] Pset 4
+- [ ] Pset 5
+- [ ] Pset 6
+- [ ] Pset 7
+- [ ] Pset 8
+- [ ] Pset 9
+- [ ] Pset 10
+- [ ] Pset 11
+- [ ] Pset 12
+- [ ] Pset 13
+- [ ] Pset 14
+- [ ] Pset 15
