@@ -13,11 +13,15 @@ Psets from: http://mitpress.mit.edu/sicp/psets/index.html
 
 Completed:
 
+Chapter exercises
+
 - [ ] Chapter 1
 - [ ] Chapter 2 (Up to 33, skipped 14-16)
 - [ ] Chapter 3
 - [ ] Chapter 4
 - [ ] Chapter 5
+
+Psets
 
 - [ ] Pset 0
 - [ ] Pset 1
