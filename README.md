@@ -1,6 +1,8 @@
 SICP
 ====
 
+Training in Scheme-fu.
+
 Completing exercises from the book and the 6.001 homeworks.
 
 Filling in chapter exercises in `./book-code`, original files from: https://mitpress.mit.edu/sicp/code/index.html
