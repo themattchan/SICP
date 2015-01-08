@@ -11,8 +11,6 @@ Texinfo version of SICP (in `./book-code`) for use inside Emacs from http://www.
 
 Psets from: http://mitpress.mit.edu/sicp/psets/index.html
 
-Completed:
-
 Chapter exercises
 
 - [ ] Chapter 1
