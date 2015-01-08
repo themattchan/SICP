@@ -1,18 +1,6 @@
 #lang racket
 (require test-engine/racket-tests)
 
-(provide 
- make-queue
- queue-empty?
- queue-length
- enqueue
- enqueue-list
- dequeue
- queue-filter
- queue-append
- list->queue
- queue->list)
- 
 (struct queue (head tail))
 
 (define (make-queue)
@@ -38,17 +26,16 @@
     (queue (queue-head q)
            (append (reverse vs) (queue-tail q)))))
 
-(define flip
-  (lambda (q)
-    (if (null? (queue-head q))
-        (queue (reverse (queue-tail q)) '())
-        q)))
-
 (define dequeue
   (lambda (q)
+    (define flip
+      (lambda (q)
+        (if (null? (queue-head q))
+            (queue (reverse (queue-tail q)) '())
+            q)))
     (let ((qq (flip q)))
       (cons (car (queue-head qq))
-              (queue (cdr (queue-head qq)) (queue-tail qq))))))
+            (queue (cdr (queue-head qq)) (queue-tail qq))))))
 
 (define dequeue-n
   (lambda (q n)
