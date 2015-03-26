@@ -1,6 +1,8 @@
 SICP Chapter 2: Selected Questions + Solutions in Haskell
 =========================================================
 
+> module SICP2 where
+
 Data Abstraction
 ----------------
 
@@ -18,14 +20,17 @@ Data Abstraction
 
 We can implement zero as
 
-> zero = \f -> \x -> x
+< zero = \f -> \x -> x
 
 and successor as
 
-> succ n = \f -> \x -> (f ((n f) x))
+< succ n = \f -> \x -> (f ((n f) x))
 
-Implement `one` and `two` directly, then implement `add` which adds two Church>
+Implement `one` and `two` directly, then implement `add` which adds two Church
 numerals.
+
+Data-directed programming
+-------------------------
 
 Lists
 -----
@@ -73,12 +78,14 @@ countChange amount = cc amount 5
 >  | otherwise   = (countChange amount cs) +
 >                  (countChange (amount - c) cs)
 
-21. Write a function to square a list of ints using recursion, and using map.
+21. Write a function to square a list of ints using recursion, and again using map.
 
+> sqrec :: [Int] -> [Int]
 > sqrec []     = []
 > sqrec (x:xs) = x*x : sqrec xs
 >
-> sq xs = map (\x -> x*x) xs
+> sq :: [Int] -> [Int]
+> sq = map (\x -> x*x)
 
 23. Write `foreach :: (a -> IO ()) -> [a] -> IO ()`
 
@@ -89,16 +96,21 @@ countChange amount = cc amount 5
 Trees
 -----
 
-Here is where the differences start to come into play. This section relies on
-hetrogeneous lisp lists, which Haskell doesn't have. Instead, this turns into
-another exercise in data abstraction.
-
-Here is a Lisp style tree.
+Here is a tree/Lisp-list datatype. (Not quite, Lisp lists are hetrogeneous.)
 
 > data Tree a = Tree [Tree a] | Leaf a
 >             deriving Show
 
-27. (IMPOSSIBLE) Deep reverse a (possibly infinitely) nested list of lists
+27. Deep reverse a (possibly infinitely) nested list of lists
+   (Hint: represent this as a tree.)
+
+`((1 2) (3 4)) => ((4 3) (2 1))`
+
+> deepRev :: Tree a -> Tree a
+> deepRev l@(Leaf x)  = l
+> deepRev   (Tree xs) = Tree $ map deepRev (reverse xs)
+>
+> test27 = deepRev $ Tree [Tree [Leaf 1, Leaf 2], Tree [Leaf 3, Leaf 4]]
 
 28. Write a procedure `fringe` that takes a tree and returns a list whose
     elements are all leaves of the tree arranged in left-to-right order.
@@ -155,11 +167,42 @@ Here is a Lisp style tree.
           How much do you need to change your programs to convert to
           the new representation?
 
-See *Why Calculating is better than Scheming", Wadler. Much simpler in Haskell.
+(See *Why Calculating is better than Scheming*, Wadler. Much simpler in Haskell.)
+
+> type Weight = Int
+> type Length = Int
+> data Mobile = M  Branch Branch deriving Show
+> data Branch = BW Length Weight
+>             | BM Length Mobile
+>             deriving Show
+>
+> totalWeight :: Mobile -> Int
+> totalWeight (M l r) = weight l + weight r
+>   where weight (BW _ w) = w
+>         weight (BM _ m) = totalWeight m
+>
+> isBalanced :: Mobile -> Bool
+> isBalanced (M l r) = torque l == torque r
+>   where torque (BW l w) = l * w
+>         torque (BM l m) = l * totalWeight m
+>
+> test29_Mobile = M (BM 2 (M (BW 2 3)
+>                            (BW 2 3)))
+>                   (BW 2 3)
+> test29_1 = totalWeight test29_Mobile
+> test29_2 = isBalanced test29_Mobile
+
+Because we don't have accessor functions, changes in the data definition will
+force updates in all pattern matches, which is less versatile. But, we do get
+assistance from the type system.
 
 30. Write a function to square a tree of ints.
 
-31. Write `treemap` for the above tree datatype.
+> sqTree :: Tree Int -> Tree Int
+> sqTree (Leaf x)  = Leaf $ x*x
+> sqTree (Tree xs) = Tree $ map sqTree xs
+
+31. Generalise #30 and write `treemap` for the above tree datatype.
 
 > treemap :: (a -> b) -> Tree a -> Tree b
 > treemap f (Leaf x)  = Leaf $ f x
@@ -179,3 +222,73 @@ See *Why Calculating is better than Scheming", Wadler. Much simpler in Haskell.
 > subsets (x:xs) = let rest = subsets xs in
 >                    rest ++ map (x:) rest
  
+Higher-order functions
+----------------------
+
+Extra: Implement foldl and foldr
+
+> ffoldl :: (b -> a -> b) -> b -> [a] -> b
+> ffoldl f a []     = a
+> ffoldl f a (x:xs) = ffoldl f (f a x) xs
+>
+> ffoldr :: (a -> b -> b) -> b -> [a] -> b
+> ffoldr f a []     = a
+> ffoldr f a (x:xs) = f x (ffoldr f a xs)
+
+33. Implement map, append, and length with fold.
+
+> accumulate = ffoldr
+>
+> mmap :: (a -> b) -> [a] -> [b]
+> mmap f xs = accumulate (\x a -> f x : a) [] xs
+>
+> aappend :: [a] -> [a] -> [a]
+> aappend xs ys = accumulate (:) ys xs
+>
+> llength :: [a] -> Int
+> llength xs = accumulate (const (+1)) 0 xs
+
+34. Horner's rule.
+
+    *Exercise 2.34:* Evaluating a polynomial in x at a given value of
+     x can be formulated as an accumulation.  We evaluate the polynomial
+
+          a_n r^n | a_(n-1) r^(n-1) + ... + a_1 r + a_0
+
+     using a well-known algorithm called "Horner's rule", which
+     structures the computation as
+
+          (... (a_n r + a_(n-1)) r + ... + a_1) r + a_0
+
+     In other words, we start with a_n, multiply by x, add a_(n-1),
+     multiply by x, and so on, until we reach a_0.(3)
+
+     Fill in
+
+     < horner :: Int -> [Int] -> Int
+     < horner x coeffs = accumulate (\t a -> ????) 0 coeffs
+
+> horner :: Int -> [Int] -> Int
+> horner x coeffs = accumulate (\t a -> t*x + a) 0 coeffs
+
+35. Count leaves using fold. (First define treefold.)
+
+> treefoldr :: (Tree a -> b -> b) -> b -> Tree a -> b
+> treefoldr f b t = accumulate f b (fringe t)
+>
+> test35 = treefoldr f 0 t
+>   where f (Leaf a) b = a + b
+>         t = Tree [Tree [Leaf 1, Leaf 2], Tree [Leaf 3, Leaf 4]]
+>
+> countLeaves = treefoldr f 0
+>   where f (Leaf _) b = 1 + b
+
+36. Define `foldn` which takes as input a matrix (list of lists) and folds using
+    the transpose of that matrix.
+
+   E.g. foldn + 0 [[1,2,3],[4,5,6],[7,8,9],[10,11,12]] => [22, 26, 30]
+
+> foldn :: (a -> b -> b) -> b -> [[a]] -> [b]
+> foldn f b ([]:_) = []
+> foldn f b xs     = foldr f b (map head xs) :
+>                    foldn f b (map tail xs)
