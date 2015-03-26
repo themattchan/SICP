@@ -12,9 +12,38 @@ Data Abstraction
 > data Rat = Rat { num :: Int, denom :: Int }
 >          deriving (Show, Eq)
 
-2, 3. Implement a representation for points and rectangles in a cartesian plane.
+2. Implement a representation for points and lines
 
-4+5. (Implement `car, cons, cdr`. Do in Scheme)
+> type Point = (Int, Int)
+> data Line  = Line Point Point
+>
+> midpoint :: Line -> Point
+> midpoint (Line (x1,y1) (x2,y2)) = ((x1+x2) `div` 2, (y1+y2) `div` 2)
+>
+> lineLength :: Line -> Double
+> lineLength (Line (x1,y1) (x2,y2)) = sqrt . fromIntegral $ (x2-x1)^2 + (y2-y1)^2
+
+3. ... and rectangles in the cartesian plane.
+
+> data Rect1 = Rect1 { tl::Point       -- top left corner
+>                    , br::Point       -- bottom right corner
+>                    }
+>
+> data Rect2 = Rect2 { c::Point      -- top left corner
+>                    , w::Int        -- width
+>                    , h::Int        -- height
+>                    }
+>
+> area1 (Rect1 (x1,y1) (x2,y2)) = lineLength (Line (x1,y1) (x2,y1)) *
+>                                 lineLength (Line (x1,y1) (x1,y2))
+>
+> area2 (Rect2 _ w h) = w*h
+
+4. Implement cons, car, cdr using functions only
+
+> cons x y = \m -> m x y
+> car z    = z (\p q -> p)
+> cdr z    = z (\p q -> q)
 
 6. Church numerals.
 
@@ -28,6 +57,11 @@ and successor as
 
 Implement `one` and `two` directly, then implement `add` which adds two Church
 numerals.
+
+> one = \f -> \x -> f x
+> two = \f -> \x -> f (f x)
+>
+> addChurch m n = \f -> \x -> ((m f) ((n f) x))
 
 Data-directed programming
 -------------------------
@@ -280,6 +314,7 @@ Extra: Implement foldl and foldr
 >   where f (Leaf a) b = a + b
 >         t = Tree [Tree [Leaf 1, Leaf 2], Tree [Leaf 3, Leaf 4]]
 >
+> countLeaves :: Tree a -> Int
 > countLeaves = treefoldr f 0
 >   where f (Leaf _) b = 1 + b
 
@@ -292,3 +327,52 @@ Extra: Implement foldl and foldr
 > foldn f b ([]:_) = []
 > foldn f b xs     = foldr f b (map head xs) :
 >                    foldn f b (map tail xs)
+
+37. A matrix is a list of lists, where each inner list is a row. (A vector is
+    represented as a list). Implement the matrix operations.
+
+\begin{spec}
+type Matrix = [[Int]]
+type Vector = [Int]
+
+dotProduct :: Vector -> Vector -> Int
+dotProduct v w = accumulate (+) 0 (zipWith (*) v w)
+
+matrixTimesVector :: Matrix -> Vector -> Vector
+matrixTimesVector m v = map ????  m
+
+transpose :: Matrix -> Matrix
+transpose m = foldn ???? ???? m
+
+matrixTimesMatrix :: Matrix -> Matrix -> Matrix
+matrixTimesMatrix m n = let cols = transpose n in
+                           map ????  m
+
+\end{spec}
+
+> type Matrix = [[Int]]
+> type Vector = [Int]
+>
+> dotProduct :: Vector -> Vector -> Int
+> dotProduct v w = accumulate (+) 0 (zipWith (*) v w)
+>
+> matrixTimesVector :: Matrix -> Vector -> Vector
+> matrixTimesVector m v = map (dotProduct v) m
+>
+> transpose :: Matrix -> Matrix
+> transpose m = foldn (:) [] m
+>
+> matrixTimesMatrix :: Matrix -> Matrix -> Matrix
+> matrixTimesMatrix m n = let cols = transpose n in
+>                            map (matrixTimesVector cols) m
+>
+
+39. Write reverse in terms of foldl and foldr
+
+> reverseL :: [a] -> [a]
+> reverseL = foldl (\a x -> x:a) []
+>
+> reverseR :: [a] -> [a]
+> reverseR = foldr (\x a -> a ++ [x]) []
+
+40.
