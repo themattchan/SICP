@@ -469,7 +469,7 @@ hence it is not a function only of the widths of the intervals considered.
 
 ;: (cc 100 us-coins)
 
-#| order doesn't matter, all we're doing would be to rearrange the branches of
+#| order doesn't matter, all we're doing would be to rearrange the branchs of
 the tree recursion, but they get summed in the end |#
 
 ;; EXERCISE 2.20
@@ -900,25 +900,50 @@ recursive as well, and will be defined in pairs.
 
 ;; EXERCISE 2.34
 (define (horner-eval x coefficient-sequence)
-  (accumulate (lambda (this-coeff higher-terms) ??FILL-THIS-IN??)
+  (accumulate (lambda (this-coeff higher-terms) (+ (* this-coeff x) higher-terms))
               0
               coefficient-sequence))
 
 ;: (horner-eval 2 (list 1 3 0 5 0 1))
 
+;; EXERCISE 2.35
+(define (count-leaves t)
+  (accumulate +
+              0
+              (map (lambda (x)
+                     (if (pair? x)
+                         (count-leaves x)
+                         1))
+                   t)))
+
+;; (count-leaves '((1 2) (3 4)))
+
 ;; EXERCISE 2.36
 (define (accumulate-n op init seqs)
   (if (null? (car seqs))
       nil
-      (cons (accumulate op init ??FILL-THIS-IN??)
-            (accumulate-n op init ??FILL-THIS-IN??))))
+      (cons (accumulate op init (map car seqs))
+            (accumulate-n op init (map cdr seqs)))))
 
-;: (accumulate-n + 0 s)
+#|
+(let ((s '((1 2 3) (4 5 6) (7 8 9) (10 11 12))))
+  (accumulate-n + 0 s))
+|#
 
 ;; EXERCISE 2.37
 
 (define (dot-product v w)
   (accumulate + 0 (map * v w)))
+
+(define (matrix-*-vector m v)
+  (map (a) m))
+
+(define (transpose mat)
+  (accumulate-n () () mat))
+
+(define (matrix-*-matrix m n)
+  (let ((cols (transpose n)))
+    (map () m)))
 
 
 ;; EXERCISE 2.38
