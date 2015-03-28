@@ -72,12 +72,14 @@ Lists
 
 17. Write a function to get the last element of a List
 
+> {-@ llast :: {l:[a] | len l > 0 } -> a @-}
 > llast :: [a] -> a
 > llast [x]    = x
 > llast (x:xs) = llast xs
 
 18. Write reverse
 
+> {-@ rev :: i:_ -> {o:_ | len o == len i} @-}
 > rev :: [a] -> [a]
 > rev []     = []
 > rev (x:xs) = rev xs ++ [x]
@@ -109,7 +111,7 @@ countChange amount = cc amount 5
 > countChange _ [] = 0
 > countChange amount (c:cs)
 >  | amount == 0 = 1
->  | amount < 0  = 0
+>  | amount <  0 = 0
 >  | otherwise   = (countChange amount cs) +
 >                  (countChange (amount - c) cs)
 
@@ -326,7 +328,7 @@ Extra: Implement foldl and foldr
 36. Define `foldn` which takes as input a matrix (list of lists) and folds using
     the transpose of that matrix.
 
-   E.g. `foldn + 0 [[1,2,3],[4,5,6],[7,8,9],[10,11,12]] => [22, 26, 30]`
+   E.g. `foldn (+) 0 [[1,2,3],[4,5,6],[7,8,9],[10,11,12]] => [22, 26, 30]`
 
 > foldn :: (a -> b -> b) -> b -> [[a]] -> [b]
 > foldn f b ([]:_) = []
@@ -365,7 +367,7 @@ matrixTimesMatrix m n = let cols = transpose n in
 > matrixTimesVector m v = map (dotProduct v) m
 >
 > transpose :: Matrix -> Matrix
-> transpose m = foldn (:) [] m
+> transpose = foldn (:) []
 >
 > matrixTimesMatrix :: Matrix -> Matrix -> Matrix
 > matrixTimesMatrix m n = let cols = transpose n in
@@ -385,7 +387,7 @@ matrixTimesMatrix m n = let cols = transpose n in
 > primeSumPairs' n = [(x,y,x+y) | x<-[1..n], y<-[1..(x-1)], isPrime (x+y) == True]
 
 > isPrimeSum :: (Int, Int) -> Bool
-> isPrimeSum (x, y) = isPrime (x+y)
+> isPrimeSum (x,y) = isPrime (x+y)
 >
 > makePairSum :: (Int, Int) -> (Int, Int, Int)
 > makePairSum (x,y) = (x, y, x+y)
@@ -415,3 +417,7 @@ i,j, and k less than or equal to a given integer n that sum to a given integer s
 >   >>= \k -> return (i,j,k)
 
 42. Solve the 8-queens puzzle.
+
+
+Symbolic differentiation
+------------------------

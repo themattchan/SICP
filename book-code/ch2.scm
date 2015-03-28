@@ -128,13 +128,13 @@
   (display ")"))
 
 ;; points
-;; make-point: Num Num -> Point
+;; make-point : Num Num -> Point
 (define (make-point x y) (cons x y))
 (define (x-point pt) (car pt))
 (define (y-point pt) (cdr pt))
 
 ;; line segments
-;; make-segment: Point Point -> Line
+;; make-segment : Point Point -> Line
 (define (make-segment start end) (cons start end))
 (define (start-segment line) (car line))
 (define (end-segment line) (cdr line))
@@ -148,7 +148,7 @@
 
 ;; EXERCISE 2.3
 ;; rectangle 1: top left and bottom right corner
-;; make-rect: Point Point -> Rect
+;; make-rect : Point Point -> Rect
 (define (make-rect tl br) (cons tl br))
 (define (rect-width r) (abs (- (x-point (car r)) (x-point (cdr r)))))
 (define (rect-height r) (abs (- (y-point (car r)) (y-point (cdr r)))))
@@ -801,8 +801,7 @@ recursive as well, and will be defined in pairs.
 (define (even-fibs n)
   (define (next k)
     (if (> k n)
-        nil
-        (let ((f (fib k)))
+        nil        (let ((f (fib k)))
           (if (even? f)
               (cons f (next (+ k 1)))
               (next (+ k 1))))))
@@ -900,7 +899,8 @@ recursive as well, and will be defined in pairs.
 
 ;; EXERCISE 2.34
 (define (horner-eval x coefficient-sequence)
-  (accumulate (lambda (this-coeff higher-terms) (+ (* this-coeff x) higher-terms))
+  (accumulate (lambda (this-coeff higher-terms)
+                (+ (* this-coeff x) higher-terms))
               0
               coefficient-sequence))
 
@@ -908,13 +908,7 @@ recursive as well, and will be defined in pairs.
 
 ;; EXERCISE 2.35
 (define (count-leaves t)
-  (accumulate +
-              0
-              (map (lambda (x)
-                     (if (pair? x)
-                         (count-leaves x)
-                         1))
-                   t)))
+  (accumulate (lambda (x a) (+ 1 a)) 0 (fringe t)))
 
 ;; (count-leaves '((1 2) (3 4)))
 
@@ -936,14 +930,14 @@ recursive as well, and will be defined in pairs.
   (accumulate + 0 (map * v w)))
 
 (define (matrix-*-vector m v)
-  (map (a) m))
+  (map (lambda (x) (dot-product v x)) m))
 
 (define (transpose mat)
-  (accumulate-n () () mat))
+  (accumulate-n cons '() mat))
 
 (define (matrix-*-matrix m n)
   (let ((cols (transpose n)))
-    (map () m)))
+    (map (lambda (rows) (matrix-*-vector cols rows)) m)))
 
 
 ;; EXERCISE 2.38
@@ -956,11 +950,51 @@ recursive as well, and will be defined in pairs.
               (cdr rest))))
   (iter initial sequence))
 
+;; copy of accumulate
+(define (fold-right op initial sequence)
+  (if (null? sequence)
+      initial
+      (op (car sequence)
+          (fold-right op initial (cdr sequence)))))
+
+#|
 ;: (fold-right / 1 (list 1 2 3))
+
+(/ 1 (/ 2 (/ 3 1)))
+==> 3/2
+
 ;: (fold-left / 1 (list 1 2 3))
+
+(iter 1 '(1 2 3))
+(iter (/ 1 1) '(2 3))
+(iter (/ (/ 1 1) 2) '(3))
+(iter (/ (/ (/ 1 1) 2) 3) '())
+(/ (/ (/ 1 1) 2) 3)
+==> 1/6
+
 ;: (fold-right list nil (list 1 2 3))
+
+(list 1 (list 2 (list 3 nil)))
+==> '(1 (2 (3 ())))
+
 ;: (fold-left list nil (list 1 2 3))
 
+(iter nil '(1 2 3))
+(iter (list nil 1) '(2 3))
+(iter (list (list nil 1) 2) '(3))
+(iter (list (list (list nil 1) 2) 3) '())
+(list (list (list nil 1) 2) 3)
+==> '(((() 1) 2) 3)
+
+|#
+
+;; EXERCISE 2.39
+
+(define (reverse sequence)
+  (fold-right (lambda (x y) (append y (list x))) nil sequence))
+
+(define (reverse sequence)
+  (fold-left (lambda (x y) (cons y x)) nil sequence))
 
 ;;Nested mappings
 
@@ -989,6 +1023,18 @@ recursive as well, and will be defined in pairs.
                        (enumerate-interval 1 (- i 1))))
                 (enumerate-interval 1 n)))))
 
+;; EXERCISE 2.40
+(define (unique-pairs n)
+  (flatmap
+   (lambda (i)
+     (map (lambda (j) (list i j))
+          (enumerate-interval 1 (- i 1))))
+   (enumerate-interval 1 n)))
+
+(define (prime-sum-pairs n)
+  (map make-pair-sum
+       (filter prime-sum?
+               (unique-pairs n))))
 
 (define (permutations s)
   (if (null? s)                         ; empty set?
@@ -1002,6 +1048,25 @@ recursive as well, and will be defined in pairs.
   (filter (lambda (x) (not (= x item)))
           sequence))
 
+;; EXERCISE 2.41
+(define (enumerate-interval bot top)
+  (if (> bot top)
+      '()
+      (cons bot (enumerate-interval (+ 1 bot) top))))
+
+(define (ordered-triples n s)
+  (define (sum xs)
+    (accumulate + 0 xs))
+  (let ((range (enumerate-interval 1 n)))
+    (filter (lambda (triple) (= (sum triple) s))
+            (flatmap
+             (lambda (i)
+               (flatmap
+                (lambda (j)
+                  (map (lambda (k) (list i j k)) range))
+                range))
+             range)
+            )))
 
 ;; EXERCISE 2.42
 (define (queens board-size)
@@ -1034,7 +1099,7 @@ recursive as well, and will be defined in pairs.
          (queen-cols (- k 1))))
       (enumerate-interval 1 board-size)))))
   (queen-cols board-size))
-
+
 ;;;SECTION 2.2.4
 
 ;: (define wave2 (beside wave (flip-vert wave)))
@@ -1347,8 +1412,50 @@ recursive as well, and will be defined in pairs.
         ((element-of-set? (car set1) set2)
          (cons (car set1)
                (intersection-set (cdr set1) set2)))
-        (else (intersection-set (cdr set1) set2))))
+        (else (intersection-set (cdr set1) set2))
+        ))
 
+;; EXERCISE 2.59
+
+(define (union-set set1 set2)
+  (cond ((null? set1) set2)
+        ((element-of-set? (car set1) set2)
+         (union-set (cdr set1) set2))
+        (else (cons (car set1)
+                    (union-set (cdr set1) set2)))))
+
+;; EXERCISE 2.60
+
+;; UNORDERED WITH DUPLICATES
+
+;; element-of-set? is the same
+
+(define (adjoin-set x set)
+  (cons x set))
+
+(define (union-set set1 set2)
+  (append set1 set2))
+
+(define (intersection-set set1 set2)
+  (cond ((or (null? set1) (null? set2)) '())
+        ((element-of-set? (car set1) set2)
+         (intersection-set (cdr set1)
+                           (cons (car set1) set2)))
+        (else (intersection-set (cdr set1) set2))
+        ))
+
+#|
+The adjoin and intersection operations are now constant time. Element-of-set? is
+still O(n), but because a set with duplicates will be much larger, n will be
+larger meaning a slower running time in operation. intersection-set will not
+remove duplicates if we use the original implementation, but the tail-recursive
+one will remove duplicates from set1.
+
+Use this if the use case involves lots of adding and unions but few queries and
+intersections, and if you know the elements you are adding contain few
+duplicates.
+
+|#
 
 ;; ORDERED
 
@@ -1370,6 +1477,29 @@ recursive as well, and will be defined in pairs.
                (intersection-set (cdr set1) set2))
               ((< x2 x1)
                (intersection-set set1 (cdr set2)))))))
+
+;; EXERCISE 2.61
+(define (adjoin-set x set)
+  (cond ((null? set) '(x))
+        ((= x (car set)) set)
+        ((< x (car set)) (cons x set))
+        (else (cons (car set)
+                    (element-of-set? x (cdr set))))))
+
+;; EXERCISE 2.62
+(define (union-set set1 set2)
+  (cond
+   ((null? set1) set2)
+   ((null? set2) set1)
+   (else
+    (let ((x1 (car set1)) (x2 (car set2)))
+      (cond
+       ((= x1 x2)
+        (cons x1 (union-set (cdr set1) (cdr set2))))
+       ((< x1 x2)
+        (cons x1 (union-set (cdr set1) set2)))
+       ((< x2 x1)
+        (cons x2 (union-set set1 (cdr set2)))))))))
 
 ;; BINARY TREES
 (define (entry tree) (car tree))
