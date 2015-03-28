@@ -83,18 +83,59 @@
 
 
 ;; EXERCISE 3.1
+(define (make-accumulator init)
+  (lambda (incr)
+    (set! init (+ init incr))))
+
 ;: (define A (make-accumulator 5))
 ;: (A 10)
 ;: (A 10)
 
 
 ;; EXERCISE 3.2
+(define (make-monitored f)
+  (let ((count 0))
+    (define (call-with-count inp)
+      (set! count (+ 1 count))
+      (f inp))
+    (lambda (arg)
+      (if (eq? arg 'how-many-calls?)
+          count
+          (call-with-count arg)))))
+
+
 ;: (define s (make-monitored sqrt))
 ;: (s 100)
 ;: (s 'how-many-calls?)
 
 
-;; EXERCISE 3.3
+;; EXERCISE 3.3 and EXERCISE 3.4
+(define (make-account balance pass)
+  (define (withdraw amount)
+    (if (>= balance amount)
+        (begin (set! balance (- balance amount))
+               balance)
+        "Insufficient funds"))
+  (define (deposit amount)
+    (set! balance (+ balance amount))
+    balance)
+  (define (dispatch try-pass m)
+    (let ((incorrect-pass-tries 0))
+      (if (not (eq? try-pass pass))
+          (begin
+            (set! incorrect-pass-tries (+ 1 incorrect-pass-tries))
+            (if (< incorrect-pass-tries 7)
+                "Incorrect password"
+                (call-the-cops)))
+          (begin
+            (set! incorrect-pass-tries 0)
+            (cond ((eq? m 'withdraw) withdraw)
+                  ((eq? m 'deposit) deposit)
+                  (else (error "Unknown request -- MAKE-ACCOUNT"
+                               m)))))))
+  dispatch)
+
+
 ;: (define acc (make-account 100 'secret-password))
 ;: ((acc 'secret-password 'withdraw) 40)
 ;: ((acc 'some-other-password 'deposit) 50)
@@ -104,7 +145,7 @@
 
 ;; *following uses rand-update -- see ch3support.scm
 ;; *also must set random-init to some value
-(define random-init 7)			;**not in book**
+(define random-init 7)          ;**not in book**
 (define rand
   (let ((x random-init))
     (lambda ()
@@ -136,7 +177,7 @@
   (define (iter trials-remaining trials-passed x)
     (let ((x1 (rand-update x)))
       (let ((x2 (rand-update x1)))
-        (cond ((= trials-remaining 0)   
+        (cond ((= trials-remaining 0)
                (/ trials-passed trials))
               ((= (gcd x1 x2) 1)
                (iter (- trials-remaining 1)
@@ -189,17 +230,17 @@
 
 ;: (define D1 (make-decrementer 25))
 ;: (define D2 (make-decrementer 25))
-;: 
+;:
 ;: (define W1 (make-simplified-withdraw 25))
 ;: (define W2 (make-simplified-withdraw 25))
-;: 
+;:
 ;: (W1 20)
 ;: (W1 20)
 ;: (W2 20)
 
 ;: (define peter-acc (make-account 100))
 ;: (define paul-acc (make-account 100))
-;: 
+;:
 ;: (define peter-acc (make-account 100))
 ;: (define paul-acc peter-acc)
 
@@ -338,10 +379,10 @@
   dispatch)
 
 ;: (define acc (make-account 50))
-;: 
+;:
 ;: ((acc 'deposit) 40)
 ;: ((acc 'withdraw) 60)
-;: 
+;:
 ;: (define acc2 (make-account 100))
 
 
@@ -376,7 +417,7 @@
 ;: (define z (append  x y))
 ;: z
 ;: (cdr x)
-;: 
+;:
 ;: (define w (append! x y))
 ;: w
 ;: (cdr x)
@@ -493,14 +534,14 @@
           (else
            (set-cdr! (rear-ptr queue) new-pair)
            (set-rear-ptr! queue new-pair)
-           queue)))) 
+           queue))))
 
 (define (delete-queue! queue)
   (cond ((empty-queue? queue)
          (error "DELETE! called with an empty queue" queue))
         (else
          (set-front-ptr! queue (cdr (front-ptr queue)))
-         queue))) 
+         queue)))
 
 
 ;; EXERCISE 3.21
@@ -584,7 +625,7 @@
                       (cons (list key-1
                                   (cons key-2 value))
                             (cdr local-table)))))
-      'ok)    
+      'ok)
     (define (dispatch m)
       (cond ((eq? m 'lookup-proc) lookup)
             ((eq? m 'insert-proc!) insert!)
@@ -627,7 +668,7 @@
 ;: (define d (make-wire))
 ;: (define e (make-wire))
 ;: (define s (make-wire))
-;: 
+;:
 ;: (or-gate a b d)
 ;: (and-gate a b c)
 ;: (inverter c e)
@@ -728,7 +769,7 @@
 
 (define (probe name wire)
   (add-action! wire
-               (lambda ()        
+               (lambda ()
                  (newline)
                  (display name)
                  (display " ")
@@ -742,19 +783,19 @@
 ;: (define inverter-delay 2)
 ;: (define and-gate-delay 3)
 ;: (define or-gate-delay 5)
-;: 
+;:
 ;: (define input-1 (make-wire))
 ;: (define input-2 (make-wire))
 ;: (define sum (make-wire))
 ;: (define carry (make-wire))
-;: 
+;:
 ;: (probe 'sum sum)
 ;: (probe 'carry carry)
-;: 
+;:
 ;: (half-adder input-1 input-2 sum carry)
 ;: (set-signal! input-1 1)
 ;: (propagate)
-;: 
+;:
 ;: (set-signal! input-2 1)
 ;: (propagate)
 
@@ -875,11 +916,11 @@
     (forget-value! a2 me)
     (process-new-value))
   (define (me request)
-    (cond ((eq? request 'I-have-a-value)  
+    (cond ((eq? request 'I-have-a-value)
            (process-new-value))
-          ((eq? request 'I-lost-my-value) 
+          ((eq? request 'I-lost-my-value)
            (process-forget-value))
-          (else 
+          (else
            (error "Unknown request -- ADDER" request))))
   (connect a1 me)
   (connect a2 me)
@@ -975,7 +1016,7 @@
           'ignored))
     (define (connect new-constraint)
       (if (not (memq new-constraint constraints))
-          (set! constraints 
+          (set! constraints
                 (cons new-constraint constraints)))
       (if (has-value? me)
           (inform-about-value new-constraint))
@@ -1106,8 +1147,8 @@
 ;: (define x 10)
 ;: (parallel-execute (lambda () (set! x (* x x)))
 ;:                   (lambda () (set! x (* x x x))))
-;: 
-;: 
+;:
+;:
 ;: (define x 10)
 ;: (define s (make-serializer))
 ;: (parallel-execute (s (lambda () (set! x (* x x))))
@@ -1148,13 +1189,13 @@
     balance)
   (let ((protected (make-serializer)))
     (let ((protected-withdraw (protected withdraw))
-	  (protected-deposit (protected deposit)))
+      (protected-deposit (protected deposit)))
       (define (dispatch m)
-	(cond ((eq? m 'withdraw) protected-withdraw)
-	      ((eq? m 'deposit) protected-deposit)
-	      ((eq? m 'balance) balance)
-	      (else (error "Unknown request -- MAKE-ACCOUNT"
-			   m))))
+    (cond ((eq? m 'withdraw) protected-withdraw)
+          ((eq? m 'deposit) protected-deposit)
+          ((eq? m 'balance) balance)
+          (else (error "Unknown request -- MAKE-ACCOUNT"
+               m))))
       dispatch)))
 
 ;;;Multiple shared resources
@@ -1243,7 +1284,7 @@
       serialized-p)))
 
 (define (make-mutex)
-  (let ((cell (list false)))            
+  (let ((cell (list false)))
     (define (the-mutex m)
       (cond ((eq? m 'acquire)
              (if (test-and-set! cell)
@@ -1277,7 +1318,7 @@
       (<??>
        (apply proc (map <??> argstreams))
        (apply stream-map
-	      (cons proc (map <??> argstreams))))))
+          (cons proc (map <??> argstreams))))))
 
 ;;;SECTION 3.5.1
 
@@ -1520,7 +1561,7 @@
 
 (define (euler-transform s)
   (let ((s0 (stream-ref s 0))
-        (s1 (stream-ref s 1))    
+        (s1 (stream-ref s 1))
         (s2 (stream-ref s 2)))
     (cons-stream (- s2 (/ (square (- s2 s1))
                           (+ s0 (* -2 s1) s2)))
@@ -1711,4 +1752,3 @@
    balance
    (stream-withdraw (- balance (stream-car amount-stream))
                     (stream-cdr amount-stream))))
-

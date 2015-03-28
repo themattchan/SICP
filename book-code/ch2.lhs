@@ -2,6 +2,7 @@ SICP Chapter 2: Selected Questions + Solutions in Haskell
 =========================================================
 
 > module SICP2 where
+> import Data.Numbers.Primes
 
 Data Abstraction
 ----------------
@@ -278,7 +279,7 @@ Extra: Implement foldl and foldr
 > accumulate = ffoldr
 >
 > mmap :: (a -> b) -> [a] -> [b]
-> mmap f xs = accumulate (\x a -> f x : a) [] xs
+> mmap f xs = accumulate ((:) . f) [] xs
 >
 > aappend :: [a] -> [a] -> [a]
 > aappend xs ys = accumulate (:) ys xs
@@ -374,9 +375,41 @@ matrixTimesMatrix m n = let cols = transpose n in
 39. Write reverse in terms of foldl and foldr
 
 > reverseL :: [a] -> [a]
-> reverseL = foldl (\a x -> x:a) []
+> reverseL = foldl (flip (:)) []
 >
 > reverseR :: [a] -> [a]
 > reverseR = foldr (\x a -> a ++ [x]) []
 
-40.
+40. (Nested Mappings)
+
+> primeSumPairs' n = [(x,y,x+y) | x<-[1..n], y<-[1..(x-1)], isPrime (x+y) == True]
+
+> isPrimeSum :: (Int, Int) -> Bool
+> isPrimeSum (x, y) = isPrime (x+y)
+>
+> makePairSum :: (Int, Int) -> (Int, Int, Int)
+> makePairSum (x,y) = (x, y, x+y)
+>
+> primeSumPairs :: Int -> [(Int, Int, Int)]
+> primeSumPairs n = map makePairSum $
+>                   filter isPrimeSum $
+>                   concatMap (\i -> map (\j -> (i,j)) [1..(i-1)]) [1..n]
+
+Write a procedure `uniquePairs` that, given an integer n, generates the sequence
+of pairs (i,j) with i<=j<i<=n. Use uniquePairs to simplify `primeSumPairs` given
+above.
+
+> uniquePairs :: Int -> [(Int, Int)]
+> uniquePairs n = concatMap (\i -> map (\j -> (i,j)) [1..(i-1)]) [1..n]
+
+41. Write a procedure to find all ordered triples of distinct positive integers
+i,j, and k less than or equal to a given integer n that sum to a given integer s.
+ 
+> orderedTriples :: Int -> Int -> [(Int, Int, Int)]
+> orderedTriples n s = filter (\(i,j,k) -> i+j+k == s)
+>    $        [1..n]
+>   >>= \i -> [1..n]
+>   >>= \j -> [1..n]
+>   >>= \k -> return (i,j,k)
+
+42. Solve the 8-queens puzzle.
