@@ -201,7 +201,7 @@ Here is a tree/Lisp-list datatype. (Not quite, Lisp lists are hetrogeneous.)
           How much do you need to change your programs to convert to
           the new representation?
 
-(See *Why Calculating is better than Scheming*, Wadler. Much simpler in Haskell.)
+(See *Why Calculating is better than Scheming*, Wadler.)
 
 > type Weight = Int
 > type Length = Int
@@ -216,9 +216,11 @@ Here is a tree/Lisp-list datatype. (Not quite, Lisp lists are hetrogeneous.)
 >         weight (BM _ m) = totalWeight m
 >
 > isBalanced :: Mobile -> Bool
-> isBalanced (M l r) = torque l == torque r
+> isBalanced (M l r) = torque l == torque r && balSub l && balSub r
 >   where torque (BW l w) = l * w
 >         torque (BM l m) = l * totalWeight m
+>         balSub (BW _ _) = True
+>         balSub (BM _ m) = isBalanced m
 >
 > test29_Mobile = M (BM 2 (M (BW 2 3)
 >                            (BW 2 3)))
@@ -228,7 +230,9 @@ Here is a tree/Lisp-list datatype. (Not quite, Lisp lists are hetrogeneous.)
 
 Because we don't have accessor functions, changes in the data definition will
 force updates in all pattern matches, which is less versatile. But, we do get
-assistance from the type system.
+assistance from the type system. And, there's really only one way to do this
+problem...
+
 
 30. Write a function to square a tree of ints.
 
@@ -321,7 +325,7 @@ Extra: Implement foldl and foldr
 36. Define `foldn` which takes as input a matrix (list of lists) and folds using
     the transpose of that matrix.
 
-   E.g. foldn + 0 [[1,2,3],[4,5,6],[7,8,9],[10,11,12]] => [22, 26, 30]
+   E.g. `foldn + 0 [[1,2,3],[4,5,6],[7,8,9],[10,11,12]] => [22, 26, 30]`
 
 > foldn :: (a -> b -> b) -> b -> [[a]] -> [b]
 > foldn f b ([]:_) = []
@@ -376,3 +380,6 @@ matrixTimesMatrix m n = let cols = transpose n in
 > reverseR = foldr (\x a -> a ++ [x]) []
 
 40.
+
+> {-@ test :: {l:[a] | len l > 0}@-}
+> test = []
