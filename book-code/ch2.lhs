@@ -380,6 +380,3 @@ matrixTimesMatrix m n = let cols = transpose n in
 > reverseR = foldr (\x a -> a ++ [x]) []
 
 40.
-
-> {-@ test :: {l:[a] | len l > 0}@-}
-> test = []
