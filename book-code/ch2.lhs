@@ -279,13 +279,13 @@ Extra: Implement foldl and foldr
 > accumulate = ffoldr
 >
 > mmap :: (a -> b) -> [a] -> [b]
-> mmap f xs = accumulate ((:) . f) [] xs
+> mmap f = accumulate ((:) . f) []
 >
 > aappend :: [a] -> [a] -> [a]
-> aappend xs ys = accumulate (:) ys xs
+> aappend = flip $ accumulate (:)
 >
 > llength :: [a] -> Int
-> llength xs = accumulate (const (+1)) 0 xs
+> llength = accumulate (const (+1)) 0
 
 34. Horner's rule.
 
@@ -308,7 +308,7 @@ Extra: Implement foldl and foldr
      < horner x coeffs = accumulate (\t a -> ????) 0 coeffs
 
 > horner :: Int -> [Int] -> Int
-> horner x coeffs = accumulate (\t a -> t*x + a) 0 coeffs
+> horner x = accumulate (\t a -> t*x + a) 0
 
 35. Count leaves using fold. (First define treefold.)
 
@@ -401,6 +401,8 @@ above.
 
 > uniquePairs :: Int -> [(Int, Int)]
 > uniquePairs n = concatMap (\i -> map (\j -> (i,j)) [1..(i-1)]) [1..n]
+>
+> primeSumPairsSimpl = map makePairSum . filter isPrimeSum . uniquePairs
 
 41. Write a procedure to find all ordered triples of distinct positive integers
 i,j, and k less than or equal to a given integer n that sum to a given integer s.
