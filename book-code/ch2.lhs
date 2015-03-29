@@ -26,8 +26,8 @@ Data Abstraction
 
 3. ... and rectangles in the cartesian plane.
 
-> data Rect1 = Rect1 { tl::Point       -- top left corner
->                    , br::Point       -- bottom right corner
+> data Rect1 = Rect1 { tl::Point     -- top left corner
+>                    , br::Point     -- bottom right corner
 >                    }
 >
 > data Rect2 = Rect2 { c::Point      -- top left corner
@@ -261,7 +261,7 @@ problem...
 > subsets :: [a] -> [[a]]
 > subsets []     = [[]]
 > subsets (x:xs) = let rest = subsets xs in
->                    rest ++ map (x:) rest
+>                  rest ++ map (x:) rest
  
 Higher-order functions
 ----------------------
@@ -310,7 +310,7 @@ Extra: Implement foldl and foldr
      < horner x coeffs = accumulate (\t a -> ????) 0 coeffs
 
 > horner :: Int -> [Int] -> Int
-> horner x = accumulate (\t a -> t*x + a) 0
+> horner x = accumulate ((+) . (*x)) 0
 
 35. Count leaves using fold. (First define treefold.)
 
@@ -380,14 +380,14 @@ matrixTimesMatrix m n = let cols = transpose n in
 > reverseL = foldl (flip (:)) []
 >
 > reverseR :: [a] -> [a]
-> reverseR = foldr (\x a -> a ++ [x]) []
+> reverseR = foldr (flip (++) . (:[])) []
 
 40. (Nested Mappings)
 
 > primeSumPairs' n = [(x,y,x+y) | x<-[1..n], y<-[1..(x-1)], isPrime (x+y) == True]
 
 > isPrimeSum :: (Int, Int) -> Bool
-> isPrimeSum (x,y) = isPrime (x+y)
+> isPrimeSum = isPrime . uncurry (+)
 >
 > makePairSum :: (Int, Int) -> (Int, Int, Int)
 > makePairSum (x,y) = (x, y, x+y)
