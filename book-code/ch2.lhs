@@ -384,8 +384,6 @@ matrixTimesMatrix m n = let cols = transpose n in
 
 40. (Nested Mappings)
 
-> primeSumPairs' n = [(x,y,x+y) | x<-[1..n], y<-[1..(x-1)], isPrime (x+y) == True]
-
 > isPrimeSum :: (Int, Int) -> Bool
 > isPrimeSum = isPrime . uncurry (+)
 >
@@ -405,6 +403,10 @@ above.
 > uniquePairs n = concatMap (\i -> map (\j -> (i,j)) [1..(i-1)]) [1..n]
 >
 > primeSumPairsSimpl = map makePairSum . filter isPrimeSum . uniquePairs
+
+Or, we can just use a list comprehension
+
+> primeSumPairs' n = [(x,y,x+y) | x<-[1..n], y<-[1..(x-1)], isPrime (x+y) == True]
 
 41. Write a procedure to find all ordered triples of distinct positive integers
 i,j, and k less than or equal to a given integer n that sum to a given integer s.
