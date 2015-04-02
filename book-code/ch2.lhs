@@ -123,7 +123,7 @@ countChange amount = cc amount 5
 > sqrec (x:xs) = x*x : sqrec xs
 >
 > sq :: [Int] -> [Int]
-> sq = map (\x -> x*x)
+> sq = map (^2)
 
 23. Write `foreach :: (a -> IO ()) -> [a] -> IO ()`
 
@@ -323,8 +323,7 @@ Extra: Implement foldl and foldr
 >         t = Tree [Tree [Leaf 1, Leaf 2], Tree [Leaf 3, Leaf 4]]
 >
 > countLeaves :: Tree a -> Int
-> countLeaves = treefoldr f 0
->   where f (Leaf _) b = 1 + b
+> countLeaves = treefoldr (const (+1)) 0
 
 36. Define `foldn` which takes as input a matrix (list of lists) and folds using
     the transpose of that matrix.
