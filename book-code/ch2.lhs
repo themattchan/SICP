@@ -400,13 +400,17 @@ Write a procedure `uniquePairs` that, given an integer n, generates the sequence
 of pairs (i,j) with i<=j<i<=n. Use uniquePairs to simplify `primeSumPairs` given
 above.
 
+> -- implicit parameter
 > uniquePairs :: Int -> [(Int, Int)]
 > uniquePairs = concatMap (\i -> map ((,) i) . enumFromTo 1 $ pred i) .
 >               enumFromTo 1
 >
+> -- no lambda
 > uniquePairs' :: Int -> [(Int, Int)]
 > uniquePairs' n = let nums = [1..n] in
 >  concatMap (flip map nums) $ map (,) nums
+>
+> -- how do you get rid of both?
 >
 > primeSumPairsSimpl = map makePairSum . filter isPrimeSum . uniquePairs
 
