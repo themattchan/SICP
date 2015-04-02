@@ -2,6 +2,7 @@ SICP Chapter 2: Selected Questions + Solutions in Haskell
 =========================================================
 
 > module SICP2 where
+> import Control.Monad
 > import Data.Numbers.Primes
 
 Data Abstraction
@@ -412,11 +413,12 @@ Or, we can just use a list comprehension
 i,j, and k less than or equal to a given integer n that sum to a given integer s.
  
 > orderedTriples :: Int -> Int -> [(Int, Int, Int)]
-> orderedTriples n s = filter (\(i,j,k) -> i+j+k == s)
->    $        [1..n]
->   >>= \i -> [1..n]
->   >>= \j -> [1..n]
->   >>= \k -> return (i,j,k)
+> orderedTriples n s = do
+>   i <- [1..n]
+>   j <- [1..n]
+>   k <- [1..n]
+>   guard $ i+j+k == s
+>   return (i,j,k)
 
 42. Solve the 8-queens puzzle.
 
