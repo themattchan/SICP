@@ -389,7 +389,7 @@ matrixTimesMatrix m n = let cols = transpose n in
 > isPrimeSum = isPrime . uncurry (+)
 >
 > makePairSum :: (Int, Int) -> (Int, Int, Int)
-> makePairSum (x,y) = (x, y, x+y)
+> makePairSum p = uncurry (,,) p $ uncurry (+) p
 >
 > primeSumPairs :: Int -> [(Int, Int, Int)]
 > primeSumPairs n = map makePairSum .
