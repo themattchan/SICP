@@ -2,6 +2,7 @@ SICP Chapter 2: Selected Questions + Solutions in Haskell
 =========================================================
 
 > module SICP2 where
+> import Control.Applicative
 > import Control.Monad
 > import Data.Numbers.Primes
 
@@ -100,12 +101,7 @@ countChange amount = cc amount 5
      | kindsOfCoins == 0 = 0
      | otherwise         = (cc amount (kindsOfCoins - 1)) +
                            (cc (amount - firstDenomination kindsOfCoins) kindsOfCoins)
-    firstDenomination kindsOfCoins = case kindsOfCoins of
-        1 -> 1
-        2 -> 5
-        3 -> 10
-        4 -> 25
-        5 -> 50
+    firstDenomination kindsOfCoins = [1,5,10,25,50] !! (pred kindsOfCoins)
 \end{spec}
 
 > countChange :: Int -> [Int] -> Int
@@ -326,7 +322,7 @@ Extra: Implement foldl and foldr
 > countLeaves = treefoldr (const (+1)) 0
 
 36. Define `foldn` which takes as input a matrix (list of lists) and folds using
-    the transpose of that matrix.
+    on rows of the transpose of that matrix.
 
    E.g. `foldn (+) 0 [[1,2,3],[4,5,6],[7,8,9],[10,11,12]] => [22, 26, 30]`
 
@@ -353,7 +349,7 @@ transpose m = foldn ???? ???? m
 
 matrixTimesMatrix :: Matrix -> Matrix -> Matrix
 matrixTimesMatrix m n = let cols = transpose n in
-                           map ????  m
+  map ????  m
 
 \end{spec}
 
@@ -371,7 +367,7 @@ matrixTimesMatrix m n = let cols = transpose n in
 >
 > matrixTimesMatrix :: Matrix -> Matrix -> Matrix
 > matrixTimesMatrix m n = let cols = transpose n in
->                            map (matrixTimesVector cols) m
+>   map (matrixTimesVector cols) m
 >
 
 39. Write reverse in terms of foldl and foldr
@@ -408,7 +404,7 @@ above.
 > -- no lambda
 > uniquePairs' :: Int -> [(Int, Int)]
 > uniquePairs' n = let nums = [1..n] in
->  concatMap (flip map nums) $ map (,) nums
+>   concatMap (flip map nums) $ (,) <$> nums
 >
 > -- how do you get rid of both?
 >
@@ -420,7 +416,7 @@ Or, we can just use a list comprehension
 
 41. Write a procedure to find all ordered triples of distinct positive integers
 i,j, and k less than or equal to a given integer n that sum to a given integer s.
- 
+
 > orderedTriples :: Int -> Int -> [(Int, Int, Int)]
 > orderedTriples n s = do
 >   i <- [1..n]
