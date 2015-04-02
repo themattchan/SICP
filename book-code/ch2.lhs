@@ -404,6 +404,10 @@ above.
 > uniquePairs = concatMap (\i -> map ((,) i) . enumFromTo 1 $ pred i) .
 >               enumFromTo 1
 >
+> uniquePairs' :: Int -> [(Int, Int)]
+> uniquePairs' n = let nums = [1..n] in
+>  concatMap (flip map nums) $ map (,) nums
+>
 > primeSumPairsSimpl = map makePairSum . filter isPrimeSum . uniquePairs
 
 Or, we can just use a list comprehension
