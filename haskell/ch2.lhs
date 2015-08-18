@@ -357,7 +357,7 @@ matrixTimesMatrix m n = let cols = transpose n in
 > type Vector = [Int]
 >
 > dotProduct :: Vector -> Vector -> Int
-> dotProduct v w = accumulate (+) 0 (zipWith (*) v w)
+> dotProduct = accumulate (+) 0 . zipWith (*)
 >
 > matrixTimesVector :: Matrix -> Vector -> Vector
 > matrixTimesVector m v = map (dotProduct v) m
