@@ -27,6 +27,40 @@
                     opponent-up-card))
         (else my-hand)))                ; stay
 
+(define (stop-at n)
+  (lambda (my-hand opponent-up-card)
+    ;; true -> hit | false -> stay
+    (< (hand-total my-hand) n)))
+
+(define (test-strategy strat1 strat2 num-tests)
+  (define (one-trial)
+    ;; 0 -> house win | 1 -> player win
+    (twenty-one strat1 strat2))
+  (letrec ((loop (lambda (n)
+                   (if (= n 0) 0
+                       (+ (one-trial) (loop (- n 1)))))))
+    (loop num-tests)))
+
+(define (watch-player strat)
+  (lambda (my-hand opponent-up-card)
+    (define hit? (strat my-hand opponent-up-card))
+    (princ "My hand ") (princ my-hand)
+    (princ "Opponent up card ") (princ opponent-up-card)
+    (princ "Strategy returned: ") (princ (if hit? 'hit 'stay))
+    hit?))
+
+(define (lewis my-hand opponent-up-card)
+  (cond
+   ((< my-hand 12) #t)
+   ((> my-hand 16) #f)
+   ((= my-hand 12) (< opponent-up-card 4))
+   ((= my-hand 16) (not (= opponent-up-card 10)))
+   (#t (> opponent-up-card 6))))
+
+(define (both strat1 strat2)
+  (lambda (my-hand opponent-up-card)
+    (and (strat1 my-hand opponent-up-card)
+         (strat2 my-hand opponent-up-card))))
 
 (define (deal) (+ 1 (random 10)))
 
@@ -61,3 +95,9 @@
 (define (user-says-y?) (eq? (read-from-keyboard) 'y))
 
 (twenty-one hit? hit?)
+
+(print (test-strategy (stop-at 16) (stop-at 15) 10))
+(test-strategy (watch-player (stop-at 16)) (watch-player (stop-at 15)) 2)
+(test-strategy lewis (stop-at 15) 10)
+(test-strategy lewis (stop-at 16) 10)
+(test-strategy lewis (stop-at 17) 10)

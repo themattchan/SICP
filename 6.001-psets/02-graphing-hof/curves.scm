@@ -43,13 +43,13 @@
 
 ;;; TRANSLATE is of type (Sch-Num, Sch-Num --> Curve-Transform)
 
-(define (translate x0 y0)               
+(define (translate x0 y0)
   (lambda (curve)
     (lambda (t)
       (let ((ct (curve t)))
         (make-point (+ x0 (x-of ct))
                     (+ y0 (y-of ct)))))))
-
+
 ;;; ROTATE-AROUND-ORIGIN is of type (Sch-Num --> Curve-Transform)
 
 (define (rotate-around-origin theta)
@@ -135,8 +135,8 @@
 (define (connect-rigidly curve1 curve2)
   (lambda (t)
     (if (< t (/ 1 2))
-	(curve1 (* 2 t))
-	(curve2 (- (* 2 t) 1)))))
+    (curve1 (* 2 t))
+    (curve2 (- (* 2 t) 1)))))
 
 ;;; CONNECT-ENDS makes a curve consisting of curve1 followed by
 ;;;  a copy of curve2 starting at the end of curve1
@@ -185,24 +185,3 @@
         (connect-rigidly ((rotate-around-origin theta) scaled-curve)
                          ((translate .5 (* (sin theta) scale-factor))
                           ((rotate-around-origin (- theta)) scaled-curve)))))))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

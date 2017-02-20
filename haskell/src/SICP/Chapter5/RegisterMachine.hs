@@ -57,18 +57,20 @@ data Reg = A | B | C | D
 newtype Label = Lbl String
   deriving (Show, Eq)
 
-newtype Op = Op String
+newtype Operation = Operation String
   deriving (Show, Eq)
 
-data Val = Reg Reg | Const Constant | Label Label
+data Val = Reg Reg | Label Label
   deriving (Show, Eq)
+
+data Val = Op Operation [| Const Constant
 
 data Constant = Num Int
   deriving (Show, Eq)
 
 data Instr
   = Assign Reg Val
-  | Goto Label
+  | Goto Val
   | Branch Label
   | Save Reg
   | Restore Reg
