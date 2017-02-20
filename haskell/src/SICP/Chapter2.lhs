@@ -1,10 +1,11 @@
 SICP Chapter 2: Selected Questions + Solutions in Haskell
 =========================================================
 
-> module SICP2 where
+> module SICP.Chapter2 where
 > import Control.Applicative
 > import Control.Monad
 > import Data.Numbers.Primes
+> import SICP.Utils
 
 Data Abstraction
 ----------------
@@ -19,10 +20,10 @@ Data Abstraction
 
 > type Point = (Int, Int)
 > data Line  = Line Point Point
->
+
 > midpoint :: Line -> Point
 > midpoint (Line (x1,y1) (x2,y2)) = ((x1+x2) `div` 2, (y1+y2) `div` 2)
->
+
 > lineLength :: Line -> Double
 > lineLength (Line (x1,y1) (x2,y2)) = sqrt . fromIntegral $ (x2-x1)^2 + (y2-y1)^2
 
@@ -31,15 +32,15 @@ Data Abstraction
 > data Rect1 = Rect1 { tl::Point     -- top left corner
 >                    , br::Point     -- bottom right corner
 >                    }
->
+
 > data Rect2 = Rect2 { c::Point      -- top left corner
 >                    , w::Int        -- width
 >                    , h::Int        -- height
 >                    }
->
+
 > area1 (Rect1 (x1,y1) (x2,y2)) = lineLength (Line (x1,y1) (x2,y1)) *
 >                                 lineLength (Line (x1,y1) (x1,y2))
->
+
 > area2 (Rect2 _ w h) = w*h
 
 4. Implement cons, car, cdr using functions only
@@ -63,8 +64,8 @@ numerals.
 
 > one = \f -> \x -> f x
 > two = \f -> \x -> f (f x)
->
-> addChurch m n = \f -> \x -> ((m f) ((n f) x))
+
+> addChurch m n = \f -> m f . n f
 
 Data-directed programming
 -------------------------
@@ -117,7 +118,7 @@ countChange amount = cc amount 5
 > sqrec :: [Int] -> [Int]
 > sqrec []     = []
 > sqrec (x:xs) = x*x : sqrec xs
->
+
 > sq :: [Int] -> [Int]
 > sq = map (^2)
 
@@ -143,7 +144,7 @@ Here is a tree/Lisp-list datatype. (Not quite, Lisp lists are hetrogeneous.)
 > deepRev :: Tree a -> Tree a
 > deepRev l@(Leaf x)  = l
 > deepRev   (Tree xs) = Tree $ map deepRev (reverse xs)
->
+
 > test27 = deepRev $ Tree [Tree [Leaf 1, Leaf 2], Tree [Leaf 3, Leaf 4]]
 
 28. Write a procedure `fringe` that takes a tree and returns a list whose
@@ -209,19 +210,19 @@ Here is a tree/Lisp-list datatype. (Not quite, Lisp lists are hetrogeneous.)
 > data Branch = BW Length Weight
 >             | BM Length Mobile
 >             deriving Show
->
+
 > totalWeight :: Mobile -> Int
 > totalWeight (M l r) = weight l + weight r
 >   where weight (BW _ w) = w
 >         weight (BM _ m) = totalWeight m
->
+
 > isBalanced :: Mobile -> Bool
 > isBalanced (M l r) = torque l == torque r && balSub l && balSub r
 >   where torque (BW l w) = l * w
 >         torque (BM l m) = l * totalWeight m
 >         balSub (BW _ _) = True
 >         balSub (BM _ m) = isBalanced m
->
+
 > test29_Mobile = M (BM 2 (M (BW 2 3)
 >                            (BW 2 3)))
 >                   (BW 2 3)
@@ -245,10 +246,10 @@ problem...
 > treemap :: (a -> b) -> Tree a -> Tree b
 > treemap f (Leaf x)  = Leaf $ f x
 > treemap f (Tree xs) = Tree $ map (treemap f) xs
->
+
 > instance Functor Tree where
 >   fmap = treemap
->
+
 > test29 = fmap (+1) t
 >   where t = Tree [Tree [Leaf 1, Leaf 2], Tree [Leaf 3, Leaf 4]]
 
@@ -259,7 +260,7 @@ problem...
 > subsets []     = [[]]
 > subsets (x:xs) = let rest = subsets xs in
 >                  rest ++ map (x:) rest
- 
+
 Higher-order functions
 ----------------------
 
@@ -268,7 +269,7 @@ Extra: Implement foldl and foldr
 > ffoldl :: (b -> a -> b) -> b -> [a] -> b
 > ffoldl f a []     = a
 > ffoldl f a (x:xs) = ffoldl f (f a x) xs
->
+
 > ffoldr :: (a -> b -> b) -> b -> [a] -> b
 > ffoldr f a []     = a
 > ffoldr f a (x:xs) = f x (ffoldr f a xs)
@@ -276,13 +277,13 @@ Extra: Implement foldl and foldr
 33. Implement map, append, and length with fold.
 
 > accumulate = ffoldr
->
+
 > mmap :: (a -> b) -> [a] -> [b]
 > mmap f = accumulate ((:) . f) []
->
+
 > aappend :: [a] -> [a] -> [a]
 > aappend = flip $ accumulate (:)
->
+
 > llength :: [a] -> Int
 > llength = accumulate (const (+1)) 0
 
@@ -313,11 +314,11 @@ Extra: Implement foldl and foldr
 
 > treefoldr :: (Tree a -> b -> b) -> b -> Tree a -> b
 > treefoldr f b t = accumulate f b (fringe t)
->
+
 > test35 = treefoldr f 0 t
 >   where f (Leaf a) b = a + b
 >         t = Tree [Tree [Leaf 1, Leaf 2], Tree [Leaf 3, Leaf 4]]
->
+
 > countLeaves :: Tree a -> Int
 > countLeaves = treefoldr (const (+1)) 0
 
@@ -355,26 +356,26 @@ matrixTimesMatrix m n = let cols = transpose n in
 
 > type Matrix = [[Int]]
 > type Vector = [Int]
->
+
 > dotProduct :: Vector -> Vector -> Int
-> dotProduct = accumulate (+) 0 . zipWith (*)
->
+> dotProduct v1 v2 = accumulate (+) 0 (zipWith (*) v1 v2)
+
 > matrixTimesVector :: Matrix -> Vector -> Vector
 > matrixTimesVector m v = map (dotProduct v) m
->
+
 > transpose :: Matrix -> Matrix
 > transpose = foldn (:) []
->
+
 > matrixTimesMatrix :: Matrix -> Matrix -> Matrix
 > matrixTimesMatrix m n = let cols = transpose n in
 >   map (matrixTimesVector cols) m
->
+
 
 39. Write reverse in terms of foldl and foldr
 
 > reverseL :: [a] -> [a]
 > reverseL = foldl (flip (:)) []
->
+
 > reverseR :: [a] -> [a]
 > reverseR = foldr (flip (++) . (:[])) []
 
@@ -382,10 +383,10 @@ matrixTimesMatrix m n = let cols = transpose n in
 
 > isPrimeSum :: (Int, Int) -> Bool
 > isPrimeSum = isPrime . uncurry (+)
->
+
 > makePairSum :: (Int, Int) -> (Int, Int, Int)
 > makePairSum p = uncurry (,,) p $ uncurry (+) p
->
+
 > primeSumPairs :: Int -> [(Int, Int, Int)]
 > primeSumPairs n = map makePairSum .
 >                   filter isPrimeSum $
@@ -400,14 +401,14 @@ above.
 > uniquePairs :: Int -> [(Int, Int)]
 > uniquePairs = concatMap (\i -> map ((,) i) . enumFromTo 1 $ pred i) .
 >               enumFromTo 1
->
+
 > -- no lambda
 > uniquePairs' :: Int -> [(Int, Int)]
 > uniquePairs' n = let nums = [1..n] in
 >   concatMap (flip map nums) $ (,) <$> nums
->
+
 > -- how do you get rid of both?
->
+
 > primeSumPairsSimpl = map makePairSum . filter isPrimeSum . uniquePairs
 
 Or, we can just use a list comprehension
